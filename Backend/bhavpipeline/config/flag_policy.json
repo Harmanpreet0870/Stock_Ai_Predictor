@@ -1,0 +1,14 @@
+{
+  "flag_states": {
+    "-2": "Error - requires review/retry",
+    "-1": "Holiday - no processing",
+    "0":  "Pending - eligible for execution",
+    "1":  "Done - completed successfully",
+    "2":  "Rolled out - archived"
+  },
+  "rules": {
+    "calendar_override": "isholidayflag=0 blocks all processing",
+    "no_retry_on_done": "flag=1 cannot be retried",
+    "no_retry_on_rolled_out": "flag=2 cannot be retried"
+  }
+}
