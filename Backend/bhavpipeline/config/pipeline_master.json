@@ -1,0 +1,57 @@
+{
+  "meta": {
+    "created_at": "2025-12-15",
+    "last_updated": "2025-12-15",
+    "code_path": "auto"
+  },
+  "software_components": [
+    {
+      "component_id": "Share_Renamer",
+      "name": "nse_bhavcopycsv_downloader_main",
+      "description": "Downloads share rename csv file from nse",
+      "execution_order": 1,
+      "dependencies": [],
+      "enabled": false
+    },
+    {
+      "component_id": "Temp_Bhav",
+      "name": "tempbhav_maker",
+      "description": "Processes raw bhavcopy data",
+      "execution_order": 2,
+      "dependencies": [],
+      "enabled": true
+    },
+    {
+      "component_id": "Split_Corrector",
+      "name": "split_corrector",
+      "description": "Applies share split corrections",
+      "execution_order": 3,
+      "dependencies": ["Temp_Bhav"],
+      "enabled": true
+    },
+    {
+      "component_id": "Share_Registry",
+      "name": "shareregistry_checker",
+      "description": "Processes temp bhavcopy data",
+      "execution_order": 4,
+      "dependencies": ["Temp_Bhav"],
+      "enabled": true
+    },
+    {
+      "component_id": "MSID_Corrector",
+      "name": "msid_rename_handler",
+      "description": "Applies MSID corrections",
+      "execution_order": 5,
+      "dependencies": ["Share_Registry"],
+      "enabled": true
+    },
+    {
+      "component_id": "Bhav_Master",
+      "name": "tempbhav_to_master",
+      "description": "Transfers data from temp to Bhav Master",
+      "execution_order": 6,
+      "dependencies": [],
+      "enabled": true
+    }
+  ]
+}

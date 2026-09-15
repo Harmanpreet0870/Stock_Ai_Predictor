@@ -1,0 +1,6 @@
+fastapi
+uvicorn[standard]
+pandas
+tqdm
+requests
+nselib
