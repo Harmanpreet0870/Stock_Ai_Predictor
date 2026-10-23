@@ -4,3 +4,4 @@ pandas
 tqdm
 requests
 nselib
+python-multipart

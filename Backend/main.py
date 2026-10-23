@@ -1,20 +1,21 @@
 # ====================================================
-# File Role    : Master File
+# File Role    : Master Entry Point
 # File Name    : main.py
-# Location     : backend/
-# Purpose      : FastAPI entry point — starts data pipeline on startup
-# Run          : uvicorn main:app --reload  (from backend/ directory)
+# Location     : Backend/
+# Run          : uvicorn main:app --reload  (from Backend/ directory)
 # ====================================================
 
 import logging
 import threading
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI, BackgroundTasks
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from paths import DB_PATH
 from pipeline_runner import run_pipeline_batch
+from routers import market, stocks, screener, sectors, patterns
 
 logging.basicConfig(
     level=logging.INFO,
@@ -25,7 +26,6 @@ log = logging.getLogger("main")
 
 
 def _run_pipeline_background():
-    """Runs the pipeline in a daemon thread so the API stays responsive."""
     try:
         log.info("Pipeline background thread starting...")
         result = run_pipeline_batch(db_path=DB_PATH, max_days=10)
@@ -36,31 +36,42 @@ def _run_pipeline_background():
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # ── Startup: kick off pipeline in a background thread ──
     log.info("Backend startup — launching pipeline thread.")
     thread = threading.Thread(
-        target=_run_pipeline_background,
-        daemon=True,
-        name="pipeline-startup",
+        target=_run_pipeline_background, daemon=True, name="pipeline-startup"
     )
     thread.start()
     yield
-    # ── Shutdown (nothing to teardown) ──
     log.info("Backend shutting down.")
 
 
 app = FastAPI(
     title="Stock AI Predictor",
-    description="NSE bhavcopy data pipeline + AI stock analytics",
-    version="1.0.0",
+    description="NSE market data + technical indicator analytics",
+    version="2.0.0",
     lifespan=lifespan,
 )
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
-# ── Health check ─────────────────────────────────────────────────
+# ── API Routers ───────────────────────────────────────────────────
+app.include_router(market.router)
+app.include_router(stocks.router)
+app.include_router(screener.router)
+app.include_router(sectors.router)
+app.include_router(patterns.router)
+
+
+# ── Health ────────────────────────────────────────────────────────
 @app.get("/", tags=["Health"])
 def root():
-    return {"status": "ok", "service": "Stock AI Predictor"}
+    return {"status": "ok", "service": "Stock AI Predictor API v2"}
 
 
 @app.get("/health", tags=["Health"])
@@ -68,13 +79,9 @@ def health():
     return {"status": "ok"}
 
 
-# ── Pipeline control ─────────────────────────────────────────────
+# ── Pipeline control ──────────────────────────────────────────────
 @app.post("/pipeline/run", tags=["Pipeline"])
 def trigger_pipeline(max_days: int = 10):
-    """
-    Manually trigger a pipeline batch run.
-    The run executes in a background thread; this endpoint returns immediately.
-    """
     def run():
         run_pipeline_batch(db_path=DB_PATH, max_days=max_days)
 
@@ -88,27 +95,19 @@ def trigger_pipeline(max_days: int = 10):
 
 @app.get("/pipeline/status", tags=["Pipeline"])
 def pipeline_status():
-    """
-    Check how many dates are still pending in master_wdate_tb.
-    """
-    import sqlite3
-    import os
+    import sqlite3, os
     if not os.path.exists(DB_PATH):
-        return JSONResponse(
-            status_code=503,
-            content={"error": "Database not found", "db_path": DB_PATH},
-        )
+        return JSONResponse(status_code=503, content={"error": "Database not found"})
     try:
         conn = sqlite3.connect(DB_PATH)
         cursor = conn.cursor()
-        cursor.execute("""
-            SELECT COUNT(*) FROM master_wdate_tb
-            WHERE tmpbhvupd_flag = 0 AND isholidayflag = 1 AND bhavdownload_flag = 1
-        """)
+        cursor.execute(
+            "SELECT COUNT(*) FROM master_wdate_tb WHERE tmpbhvupd_flag = 0 AND isholidayflag = 1 AND bhavdownload_flag = 1"
+        )
         pending = cursor.fetchone()[0]
         cursor.execute("SELECT COUNT(*) FROM master_wdate_tb WHERE bhavupdator_flag = 1")
         completed = cursor.fetchone()[0]
         conn.close()
-        return {"pending_dates": pending, "completed_dates": completed, "db_path": DB_PATH}
+        return {"pending_dates": pending, "completed_dates": completed}
     except Exception as e:
         return JSONResponse(status_code=500, content={"error": str(e)})
