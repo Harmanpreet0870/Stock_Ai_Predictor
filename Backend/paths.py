@@ -10,3 +10,6 @@ JSON_PATH            = str(DATA_DIR / "csvjson")
 PIPELINE_LOG_PATH    = str(DATA_DIR / "pipeline_logs")
 BHAVPIPELINE_SRC     = str(_BACKEND_DIR / "bhavpipeline" / "src")
 BHAVPIPELINE_CONFIG  = str(_BACKEND_DIR / "bhavpipeline" / "config")
+
+# Main NSE database — all indicators pre-computed by the swing pipeline
+MAIN_DB_PATH = r"D:\database\bhavdatabase\Nse_Mainbhavdata.db"

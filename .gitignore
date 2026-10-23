@@ -1,0 +1,33 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+venv/
+env/
+*.egg-info/
+dist/
+build/
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# Node
+node_modules/
+dist/
+.next/
+*.local
+
+# Env / secrets
+.env
+.env.*
+!.env.example
+
+# Claude Code internal
+.claude/
+
+# OS
+.DS_Store
+Thumbs.db
