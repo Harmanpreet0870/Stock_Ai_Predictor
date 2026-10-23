@@ -1,0 +1,70 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    background-color: #060c1a;
+    color: #dce6f5;
+    font-family: 'Inter', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track { background: #0d1728; }
+  ::-webkit-scrollbar-thumb { background: #1c2e4a; border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: #2a4060; }
+}
+
+@layer components {
+  .card {
+    @apply bg-surface border border-rim rounded-xl p-4;
+  }
+  .card-sm {
+    @apply bg-surface border border-rim rounded-lg p-3;
+  }
+  .btn-primary {
+    @apply bg-primary hover:bg-primary-light text-white px-4 py-2 rounded-lg
+           text-sm font-semibold transition-colors;
+  }
+  .btn-ghost {
+    @apply text-slate-400 hover:text-white hover:bg-surface-2 px-3 py-1.5
+           rounded-lg text-sm transition-colors;
+  }
+  .tag {
+    @apply inline-block px-2 py-0.5 rounded text-xs font-mono font-medium border;
+  }
+  .tag-buy {
+    @apply tag bg-bullish/10 text-bullish border-bullish/25;
+  }
+  .tag-sell {
+    @apply tag bg-bearish/10 text-bearish border-bearish/25;
+  }
+  .tag-hold {
+    @apply tag bg-hold/10 text-hold border-hold/25;
+  }
+  .tag-strong-buy {
+    @apply tag bg-bullish/20 text-bullish border-bullish/40 font-bold;
+  }
+  .tag-strong-sell {
+    @apply tag bg-bearish/20 text-bearish border-bearish/40 font-bold;
+  }
+  .tag-bull {
+    @apply tag bg-bullish/10 text-bullish border-bullish/25;
+  }
+  .tag-bear {
+    @apply tag bg-bearish/10 text-bearish border-bearish/25;
+  }
+  .tag-neutral {
+    @apply tag bg-slate-500/10 text-slate-400 border-slate-500/25;
+  }
+  .num {
+    @apply font-mono tabular-nums;
+  }
+  .up { @apply text-bullish; }
+  .dn { @apply text-bearish; }
+  .muted { @apply text-slate-500; }
+}
